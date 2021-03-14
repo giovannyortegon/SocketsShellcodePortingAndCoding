@@ -10,7 +10,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#include<sys/type.h>
+#include<sys/types.h>
 #include<sys/socket.h>
 #include<netinet/in.h>
 #include<arpa/inet.h>
@@ -20,15 +20,25 @@ int main(int argc, char *argv[])
 {
 	struct sockaddr_in sin;
 	struct sockaddr_in csin;
-	socklen_t len = sizeof(struct sockaddr);
 	short port = 0;
 	int csock = 0;
 	int sock = 0;
 	int ret = 0;
 
+	socklen_t len = sizeof(struct sockaddr);
+
 	if (argc != 2)
 	{
-		printf("usage: %s: port\n");
+		printf("usage: %s: port \n", argv[0]);
+		return (1);
+	}
+
+	port = atoi(argv[1]);
+
+	sock = socket(AF_INET, SOCK_STREAM, 0);
+	if (sock < 0)
+	{
+		printf("TCP server socket() failed.\n");
 		return (1);
 	}
 
@@ -42,6 +52,14 @@ int main(int argc, char *argv[])
 
 	if (ret < 0)
 	{
+		printf("TCP server bind() failed.\n");
+		close(sock);
+		return (1);
+	}
+
+	ret = listen(sock, 5);
+	if (ret < 0)
+	{
 		printf("TCP server listen() failed.\n");
 		close(sock);
 		return (1);
@@ -49,5 +67,20 @@ int main(int argc, char *argv[])
 
 	printf("TCP server listening.\n");
 
-	memset(&csin, 0x0, (struct sockaddr));
+	memset(&csin, 0x0, sizeof(struct sockaddr));
+
+	csock = accept(sock, (struct sockaddr *)&csin, &len);
+	if (csock < 0)
+	{
+		printf("TCP server accept() failed.\n");
+	}
+	else
+	{
+		printf("TCP server: TCP client connection " \
+				"on port %d.\n", port);
+		close(csock);
+	}
+	close(sock);
+
+	return(0);
 }
