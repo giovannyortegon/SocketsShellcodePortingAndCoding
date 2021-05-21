@@ -1,4 +1,7 @@
 /* WSADATA */
+#include<stdio.h>
+#include<WinSock2.h>
+
 WSADATA wsaData;
 WORD wVersionRequested;
 wVersionRequested = MAKEWORD(2, 0);
